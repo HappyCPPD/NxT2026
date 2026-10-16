@@ -1,0 +1,91 @@
+# Output of Python 3.13's dis.dis(check)
+# check(flag) returns True only for the correct flag.
+# The source code was lost. Only this disassembly survived.
+
+  1           RESUME                   0
+
+  2           LOAD_GLOBAL              1 (len + NULL)
+              LOAD_FAST                0 (flag)
+              CALL                     1
+              LOAD_CONST               1 (25)
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L1)
+
+  3           RETURN_CONST             2 (False)
+
+  4   L1:     LOAD_FAST                0 (flag)
+              LOAD_CONST               0 (None)
+              LOAD_CONST               3 (4)
+              BINARY_SLICE
+              LOAD_CONST               4 ('NxT{')
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L2)
+
+  5           RETURN_CONST             2 (False)
+
+  6   L2:     LOAD_FAST                0 (flag)
+              LOAD_CONST               5 (-1)
+              BINARY_SUBSCR
+              LOAD_CONST               6 ('}')
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L3)
+
+  7           RETURN_CONST             2 (False)
+
+  8   L3:     LOAD_FAST                0 (flag)
+              LOAD_CONST               3 (4)
+              LOAD_CONST               5 (-1)
+              BINARY_SLICE
+              LOAD_ATTR                3 (split + NULL|self)
+              LOAD_CONST               7 ('_')
+              CALL                     1
+              STORE_FAST               1 (parts)
+
+  9           LOAD_GLOBAL              1 (len + NULL)
+              LOAD_FAST                1 (parts)
+              CALL                     1
+              LOAD_CONST               8 (3)
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L4)
+
+ 10           RETURN_CONST             2 (False)
+
+ 11   L4:     LOAD_FAST                1 (parts)
+              LOAD_CONST               9 (0)
+              BINARY_SUBSCR
+              LOAD_CONST               0 (None)
+              LOAD_CONST               0 (None)
+              LOAD_CONST               5 (-1)
+              BUILD_SLICE              3
+              BINARY_SUBSCR
+              LOAD_CONST              10 ('edocetyb')
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L5)
+
+ 12           RETURN_CONST             2 (False)
+
+ 13   L5:     LOAD_FAST                1 (parts)
+              LOAD_CONST              11 (1)
+              BINARY_SUBSCR
+              LOAD_GLOBAL              5 (chr + NULL)
+              LOAD_CONST              12 (105)
+              CALL                     1
+              LOAD_GLOBAL              5 (chr + NULL)
+              LOAD_CONST              13 (115)
+              CALL                     1
+              BINARY_OP                0 (+)
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L6)
+
+ 14           RETURN_CONST             2 (False)
+
+ 15   L6:     LOAD_FAST                1 (parts)
+              LOAD_CONST              14 (2)
+              BINARY_SUBSCR
+              LOAD_CONST              15 ('readable')
+              COMPARE_OP             119 (bool(!=))
+              POP_JUMP_IF_FALSE        1 (to L7)
+
+ 16           RETURN_CONST             2 (False)
+
+ 17   L7:     RETURN_CONST            16 (True)

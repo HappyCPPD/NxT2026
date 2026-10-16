@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NxT CTF</title>
+  <meta name="theme-color" content="#08070a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 7v14l-12 7L4 23V9z' fill='%2308070a' stroke='%23e6293f' stroke-width='2'/%3E%3Cpath d='M11 22V10l10 12V10' fill='none' stroke='%23f2f0f4' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <style>#logout { display: none; } .archive-banner { margin: 0 0 32px; }</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#challenges" aria-label="Challenges">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l12 7v14l-12 7L4 23V9z" fill="#08070a" stroke="#e6293f" stroke-width="2"/><path d="M11 22V10l10 12V10" fill="none" stroke="#f2f0f4" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        <span id="comp-name">NxT CTF</span>
+      </a>
+      <nav id="nav">
+        <a href="#challenges" data-tab="challenges">challenges</a>
+        <a href="#scoreboard" data-tab="scoreboard">scoreboard</a>
+        <a href="#feed" data-tab="feed">solve feed</a>
+        <a href="#rules" data-tab="rules">rules</a>
+      </nav>
+      <div class="right">
+        <span id="timer" class="timer"></span>
+        <span id="me" class="me"></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <p class="banner archive-banner">This is an archive of NxT CTF, which ran on 16 October 2026. The scoreboard is frozen at the final standings. Your solves and hints are saved in this browser only.</p>
+    <!-- Auth -->
+    <section id="view-auth" class="view auth" hidden>
+      <div class="card auth-card">
+        <p class="eyebrow"><span class="dot"></span>Registration</p>
+        <h1>Join the competition</h1>
+        <p class="muted">Pick a player name and password. You'll use them to log back in.</p>
+        <form id="auth-form">
+          <label>Player name <input name="name" required minlength="2" maxlength="24" autocomplete="username"></label>
+          <label>Password <input name="password" type="password" required minlength="6" autocomplete="current-password"></label>
+          <label id="join-code-row" hidden>Join code <input name="joinCode" autocomplete="off"></label>
+          <p id="auth-error" class="error"></p>
+          <div class="row">
+            <button type="submit" data-mode="register" class="primary">Register</button>
+            <button type="submit" data-mode="login">Log in</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Challenges -->
+    <section id="view-challenges" class="view" hidden>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow"><span class="dot"></span>Live</p>
+          <h1>Challenges</h1>
+        </div>
+        <div class="filters" id="filters"></div>
+      </div>
+      <p id="chal-banner" class="banner" hidden></p>
+      <div id="chal-board"></div>
+    </section>
+
+    <!-- Scoreboard -->
+    <section id="view-scoreboard" class="view" hidden>
+      <p class="eyebrow"><span class="dot"></span>Standings</p>
+      <h1>Scoreboard</h1>
+      <div class="card chart-card"><div id="chart"></div><div id="legend" class="legend"></div></div>
+      <div class="card">
+        <table class="board">
+          <thead><tr><th>#</th><th>Player</th><th class="num">Solves</th><th class="num">Score</th></tr></thead>
+          <tbody id="board-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Feed -->
+    <section id="view-feed" class="view" hidden>
+      <p class="eyebrow"><span class="dot"></span>Activity</p>
+      <h1>Solve feed</h1>
+      <ul id="feed-list" class="feed card"></ul>
+    </section>
+
+    <!-- Rules -->
+    <section id="view-rules" class="view" hidden>
+      <p class="eyebrow"><span class="dot"></span>Briefing</p>
+      <h1>Rules &amp; getting started</h1>
+      <div class="card prose">
+        <h2>How it works</h2>
+        <ul>
+          <li>Each challenge hides a <b>flag</b>. Find it, paste it in, score points.</li>
+          <li>Flags look like <code>NxT{some_text_here}</code>. Submit the whole thing, braces included.</li>
+          <li>Flags are case-sensitive unless a challenge says otherwise.</li>
+          <li>Hints are free and only you see them. Use them when you're stuck. That's how you learn.</li>
+          <li>Ties are broken by who reached the score first.</li>
+        </ul>
+        <h2>No AI</h2>
+        <p>This is a beginner comp. The point is for <i>you</i> to learn how this stuff works, so AI is off the table for the whole 2 hours.</p>
+        <ul>
+          <li>No chatbots or AI assistants: ChatGPT, Claude, Gemini, Copilot, DeepSeek, Perplexity, Grok, Meta AI, or anything like them.</li>
+          <li>No AI built into other tools either: AI code completion in your editor, AI browser sidebars, AI "explain this" buttons, AI image analysis.</li>
+          <li>Don't paste challenge text, files, code or screenshots into any AI, and don't ask AI to write a script for you.</li>
+          <li>Search engines are fine, but skip the AI summary at the top (Google AI Overviews, Bing Copilot answers) and read real pages instead.</li>
+          <li>Not sure if a tool counts? Ask an organizer <b>before</b> you use it.</li>
+        </ul>
+        <h2>What you <i>can</i> use</h2>
+        <ul>
+          <li>Search engines, documentation, Stack Overflow, Wikipedia, YouTube tutorials.</li>
+          <li>Writeups from <b>other</b> CTFs, to learn a technique you haven't seen before.</li>
+          <li>Normal (non-AI) tools like the ones listed below, plus scripts you write yourself.</li>
+          <li>The hints. They're free, so use them.</li>
+          <li>Organizers. Ask us if you're stuck or think a challenge is broken. We'll nudge, not solve.</li>
+        </ul>
+        <h2>Play fair</h2>
+        <ul>
+          <li>Solo play. One account per person, and don't log in to anyone else's.</li>
+          <li>Don't share flags, answers or step-by-step help with other players during the comp. Swapping techniques after it ends is encouraged.</li>
+          <li>Only attack the challenge pages under <code>/chal/</code>. Leave the scoreboard, the login and the server itself alone.</li>
+          <li>No automated scanners or flooding (sqlmap, dirbuster, gobuster, nikto, DoS). None of the challenges need them.</li>
+          <li>Don't brute-force the flag box. It's rate limited anyway.</li>
+          <li>Found a bug that gives you flags you didn't earn? Tell an organizer instead of using it.</li>
+        </ul>
+        <h2>If you break the rules</h2>
+        <ul>
+          <li>Organizers can see every submission. Suspicious solves may get a "walk us through it" question.</li>
+          <li>Breaking the rules gets your solves removed or gets you hidden from the scoreboard. Organizer decisions are final.</li>
+          <li>Honestly, the only person you'd be cheating is yourself. A 300-point flag you didn't understand teaches you nothing.</li>
+        </ul>
+        <h2>Useful tools</h2>
+        <ul>
+          <li><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener">CyberChef</a>: decoding, encoding and data wrangling in the browser</li>
+          <li>Your browser's <b>DevTools</b> (F12): view source, network, cookies</li>
+          <li><a href="https://www.wireshark.org/" target="_blank" rel="noopener">Wireshark</a>: opening <code>.pcap</code> network captures</li>
+          <li><a href="https://exiftool.org/" target="_blank" rel="noopener">exiftool</a>, <code>strings</code>, <code>file</code>, a hex editor (<a href="https://hexed.it/" target="_blank" rel="noopener">hexed.it</a>)</li>
+          <li><a href="https://www.aperisolve.com/" target="_blank" rel="noopener">Aperi'Solve</a>: image steganography checks</li>
+          <li><code>curl</code> for sending hand-crafted web requests (built into Windows 10+, macOS and Linux)</li>
+          <li>Python 3 for scripting anything</li>
+        </ul>
+        <h2>Sanity check</h2>
+        <p>You read the rules! Here's a free flag for the <b>Sanity Check</b> challenge:</p>
+        <p class="flag-box"><code>NxT{welcome_to_the_arena}</code></p>
+      </div>
+    </section>
+
+    <!-- Admin -->
+    <section id="view-admin" class="view" hidden>
+      <p class="eyebrow"><span class="dot"></span>Restricted</p>
+      <h1>Admin</h1>
+      <form id="admin-login" class="card row">
+        <input id="admin-token" type="password" placeholder="Admin token from config.json" autocomplete="off">
+        <button class="primary">Open</button>
+        <p id="admin-error" class="error"></p>
+      </form>
+      <div id="admin-body"></div>
+    </section>
+  </main>
+
+  <!-- Challenge modal -->
+  <dialog id="modal">
+    <form method="dialog" class="modal-close"><button aria-label="Close">✕</button></form>
+    <div id="modal-body"></div>
+  </dialog>
+
+  <div id="toasts" class="toasts"></div>
+
+  <script src="data.js"></script>
+  <script src="archive-api.js"></script>
+  <script src="app.js"></script>
+  <script src="archive-ui.js"></script>
+</body>
+</html>

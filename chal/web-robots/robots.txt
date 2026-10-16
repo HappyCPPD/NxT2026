@@ -1,0 +1,2 @@
+User-agent: *
+Disallow: /NxT2026/chal/web-robots/super-secret-admin-panel/
