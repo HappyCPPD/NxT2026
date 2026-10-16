@@ -56,10 +56,10 @@ function toast(html, cls = '') {
 // Routing
 // ---------------------------------------------------------------------------
 
-const VIEWS = ['auth', 'challenges', 'scoreboard', 'feed', 'rules', 'admin'];
+const VIEWS = ['auth', 'challenges', 'scoreboard', 'feed', 'rules', 'admin', 'writeups'];
 
 function route() {
-  let tab = location.hash.slice(1) || 'challenges';
+  let tab = location.hash.slice(1).split('/')[0] || 'challenges';
   if (!VIEWS.includes(tab)) tab = 'challenges';
   if (tab === 'challenges' && !state.me) tab = 'auth';
   for (const v of VIEWS) $(`#view-${v}`).hidden = v !== tab;

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
-  <style>#logout { display: none; } .archive-banner { margin: 0 0 32px; }</style>
+  <link rel="stylesheet" href="archive.css">
 </head>
 <body>
   <header class="topbar">
@@ -23,6 +23,7 @@
         <a href="#challenges" data-tab="challenges">challenges</a>
         <a href="#scoreboard" data-tab="scoreboard">scoreboard</a>
         <a href="#feed" data-tab="feed">solve feed</a>
+        <a href="#writeups" data-tab="writeups">writeups</a>
         <a href="#rules" data-tab="rules">rules</a>
       </nav>
       <div class="right">
@@ -144,6 +145,558 @@
         <h2>Sanity check</h2>
         <p>You read the rules! Here's a free flag for the <b>Sanity Check</b> challenge:</p>
         <p class="flag-box"><code>NxT{welcome_to_the_arena}</code></p>
+      </div>
+    </section>
+
+    <!-- Writeups (archive only) -->
+    <section id="view-writeups" class="view" hidden>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow"><span class="dot"></span>Debrief</p>
+          <h1>Writeups</h1>
+        </div>
+        <div class="filters" id="wu-filters"><button data-filter="all">all</button><button data-filter="misc">misc</button><button data-filter="crypto">crypto</button><button data-filter="forensics">forensics</button><button data-filter="web">web</button><button data-filter="rev">rev</button></div>
+      </div>
+      <p class="lede">How each challenge was meant to be solved, with a no-code route and a script where it makes sense. Every card starts folded, so you won't spoil a challenge you're still working on.</p>
+      
+      <div class="wu-cat" data-cat="misc">
+        <div class="category cat-misc"><span class="prompt">$</span><h2>misc</h2><span class="count">5 writeups</span></div>
+        
+        
+        <details class="wu cat-misc" id="wu-misc-sanity" data-id="misc-sanity">
+          <summary>
+            <span class="name">Sanity Check</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>4 solves</span><span class="pts">10</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{welcome_to_the_arena}</code></p>
+<p>The flag sits at the bottom of the Rules tab. The real lesson: <i>always read the rules and the challenge description carefully.</i> In real CTFs the rules tell you the flag format, what&#39;s in scope, and sometimes give away a free flag like this one.</p>
+          </div>
+        </details>
+        <details class="wu cat-misc" id="wu-misc-sanity-2" data-id="misc-sanity-2">
+          <summary>
+            <span class="name">Sanity Check #2</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>3 solves</span><span class="pts">10</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{y0u_s33_m3_n0w_p0st3r_h4ck3r}</code></p>
+<p>The event poster in the Discord has the flag written in near-black text on the near-black background, just right of the big &quot;COMP&quot;. Turn your brightness up or bump the levels in any image editor and it pops out.</p>
+<p><b>Takeaway:</b> &quot;nothing there&quot; often means &quot;nothing there <i>at default contrast</i>&quot;. Always play with brightness/levels on image challenges.</p>
+          </div>
+        </details>
+        <details class="wu cat-misc" id="wu-misc-speed-math" data-id="misc-speed-math">
+          <summary>
+            <span class="name">Speed Math</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>4 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            <p class="banner"><b>Archive version:</b> the archived Speed Math runs in your browser, so the API and the scripts below only worked on the live comp server.</p>
+            <p><b>Flag:</b> <code>NxT{you_can_count_fast}</code></p>
+<p><b>What it teaches:</b> talking to an interactive service from a script. Lots of CTF challenges throw dozens of questions at you with a short timer, so you <i>have</i> to automate them.</p>
+<h3>By hand</h3>
+<p>Open the page, hit Start, and answer 5 questions with 15 seconds each. A calculator helps. Watch out for negative answers.</p>
+<h3>Look under the hood</h3>
+<p>DevTools → Network while you play shows the page is just calling two endpoints:</p>
+<ul><li><code>POST api/start</code> → <code>{&quot;round&quot;: 1, &quot;total&quot;: 5, &quot;question&quot;: &quot;96 * 78&quot;, &quot;timeLimit&quot;: 15}</code>, and sets a <code>mathsid</code> cookie</li><li><code>POST api/answer</code> with <code>{&quot;answer&quot;: 7488}</code> → the next question, an <code>error</code>, or finally <code>{&quot;flag&quot;: &quot;NxT{...}&quot;}</code></li></ul>
+<p>The <code>mathsid</code> cookie is how the server remembers <i>your</i> game. Lose the cookie and it has no idea which question you&#39;re answering.</p>
+<h3>With a script (the skill that actually matters)</h3>
+<pre><code>import requests
+
+URL = &quot;https://&lt;comp-link&gt;/chal/misc-speed-math/&quot;
+
+s = requests.Session()          # a Session keeps cookies between requests
+q = s.post(URL + &quot;api/start&quot;).json()
+while &quot;question&quot; in q:
+    print(q[&quot;question&quot;])
+    q = s.post(URL + &quot;api/answer&quot;, json={&quot;answer&quot;: eval(q[&quot;question&quot;])}).json()
+print(q)</code></pre>
+<p>(<code>pip install requests</code> if you don&#39;t have it.)</p>
+<p>The same idea with curl, saving and resending the cookie by hand:</p>
+<pre><code>curl -c jar.txt -X POST https://&lt;comp-link&gt;/chal/misc-speed-math/api/start
+curl -b jar.txt -c jar.txt -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;answer&quot;: 7488}&#39; https://&lt;comp-link&gt;/chal/misc-speed-math/api/answer</code></pre>
+<blockquote><p>⚠️ <code>eval()</code> is fine here because we know exactly what the server sends. Never <code>eval()</code> untrusted input in real code.</p></blockquote>
+<p><b>Next step:</b> many CTFs serve challenges like this over raw TCP (<code>nc host port</code>) instead of HTTP. Same idea, different transport. Look up Python&#39;s <code>socket</code> module and the <code>pwntools</code> library.</p>
+          </div>
+        </details>
+        <details class="wu cat-misc" id="wu-misc-cold-clarinet" data-id="misc-cold-clarinet">
+          <summary>
+            <span class="name">Cold Clarinet</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>4 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{kai_brooks}</code></p>
+<p>Open the YouTube link and expand the description. It was uploaded through DistroKid, so YouTube auto-generates a credits block listing <b>Clarinet: Kai Brooks</b>. Format it as the challenge asks and you have <code>NxT{kai_brooks}</code>.</p>
+<p><b>Takeaway:</b> OSINT is mostly knowing where public info lives. Descriptions, credits, metadata and profile pages give away more than people expect.</p>
+          </div>
+        </details>
+        <details class="wu cat-misc" id="wu-misc-where-am-i" data-id="misc-where-am-i">
+          <summary>
+            <span class="name">Where Am I?</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>3 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{clementi_road}</code> (<code>NxT{clementi_rd}</code> is also accepted)</p>
+<p>The metadata has been stripped, so <code>exiftool</code> gives you nothing. You have to read the picture:</p>
+<ol><li><b>Country.</b> Cars drive on the left, the kerbs are painted in black-and-white stripes, the railings are green, and the street is lined with massive rain trees. That combination screams Singapore.</li><li><b>Narrow it down.</b> A wide multi-lane road with a planted divider, a signalised junction and dense greenery on both sides: a major arterial road through a leafy area, not a town centre.</li><li><b>Confirm.</b> Clementi Road runs from Bukit Timah down to the West Coast past NUS. Drop into Google Street View along it and match the trees, the railings and the junction layout.</li></ol>
+<p><b>Takeaway:</b> geolocation is about stacking small clues (driving side, road markings, kerbs, vegetation, street furniture) until only one place fits.</p>
+          </div>
+        </details>
+      </div>
+      <div class="wu-cat" data-cat="crypto">
+        <div class="category cat-crypto"><span class="prompt">$</span><h2>crypto</h2><span class="count">6 writeups</span></div>
+        <div class="wu-intro"><p>A big part of beginner &quot;crypto&quot; is telling <b>encoding</b> (reversible by anyone, no key: Base64, hex) apart from <b>encryption</b> (needs a key: Caesar, XOR, RSA). Learn to recognise encodings by sight:</p>
+<div class="table-wrap"><table><thead><tr><th>Looks like</th><th>Probably</th></tr></thead><tbody><tr><td><code>A-Z a-z 0-9 + /</code>, ends with <code>=</code> or <code>==</code></td><td>Base64</td></tr><tr><td><code>0-9 a-f</code> only, even length</td><td>Hex</td></tr><tr><td><code>A-Z 2-7</code> only, padded with <code>=</code></td><td>Base32</td></tr><tr><td>Letters shifted, punctuation untouched</td><td>Caesar / ROT13</td></tr></tbody></table></div></div>
+        
+        <details class="wu cat-crypto" id="wu-crypto-base64" data-id="crypto-base64">
+          <summary>
+            <span class="name">Totally Encrypted</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>4 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{base64_is_not_encryption}</code></p>
+<p>The string <code>TnhUe...</code> is Base64 (the <code>TnhUe</code> prefix is literally <code>NxT{</code> encoded, which is worth memorising for this comp).</p>
+<ul><li><b>CyberChef:</b> recipe &quot;From Base64&quot;</li><li><b>Terminal:</b> <code>echo TnhUe... | base64 -d</code></li><li><b>Python:</b> <code>import base64; base64.b64decode(&quot;TnhUe...&quot;)</code></li></ul>
+<p><b>Takeaway:</b> Base64 is an <i>encoding</i>. It hides nothing.</p>
+          </div>
+        </details>
+        <details class="wu cat-crypto" id="wu-crypto-single-baka" data-id="crypto-single-baka">
+          <summary>
+            <span class="name">Single Baka</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>4 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{N1CH0LAU5_AND_THR1SHNA}</code></p>
+<p>Same trick as Totally Encrypted: <code>TnhUe...</code> is Base64 for <code>NxT{</code>. One &quot;From Base64&quot; in CyberChef, or <code>echo TnhUe04xQ0gwTEFVNV9BTkRfVEhSMVNITkF9 | base64 -d</code>.</p>
+<p><b>Takeaway:</b> once you&#39;ve seen <code>TnhUe</code> in this comp, you&#39;ll recognise it instantly.</p>
+          </div>
+        </details>
+        <details class="wu cat-crypto" id="wu-crypto-caesar" data-id="crypto-caesar">
+          <summary>
+            <span class="name">Et Tu, Brute?</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>3 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{caesar_would_be_proud}</code></p>
+<p>The ciphertext starts <code>UeA{</code>. We know the plaintext starts <code>NxT{</code>, so the last letter T→A is a shift of 7 (T=19, A=0, and 19+7=26≡0). Shift every letter back by 7.</p>
+<ul><li><b>CyberChef:</b> &quot;ROT13&quot; with amount <code>19</code> (that&#39;s −7 mod 26)</li><li><b>dcode.fr</b> Caesar cipher → brute force shows all 25 options</li></ul>
+<pre><code>ct = &quot;UeA{jhlzhy_dvbsk_il_wyvbk}&quot;
+for shift in range(26):
+    pt = &quot;&quot;.join(chr((ord(c) - 97 - shift) % 26 + 97) if c.islower()
+                 else chr((ord(c) - 65 - shift) % 26 + 65) if c.isupper() else c for c in ct)
+    if pt.startswith(&quot;NxT&quot;):
+        print(shift, pt)</code></pre>
+<p><b>Takeaway:</b> with only 25 possible keys, brute force is instant. Known plaintext (the flag format!) tells you the key directly.</p>
+          </div>
+        </details>
+        <details class="wu cat-crypto" id="wu-crypto-layers" data-id="crypto-layers">
+          <summary>
+            <span class="name">Onion Layers</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>1 solve</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{cyberchef_is_your_friend}</code></p>
+<p>Peel one layer at a time, and after each step ask &quot;what does this look like now?&quot;</p>
+<ol><li><code>onion.txt</code> is Base64 → decode → you get a long hex string</li><li>Hex (<code>0-9a-f</code>) → decode → you get uppercase letters, digits 2–7 and <code>=</code> padding</li><li>That&#39;s Base32 → decode → <code>GENVA{plorepurs_vf_lbhe_sevraq}</code></li><li>Letters look shifted, braces untouched → ROT13 → flag</li></ol>
+<p><b>CyberChef:</b> <code>From Base64</code> → <code>From Hex</code> → <code>From Base32</code> → <code>ROT13</code>. CyberChef&#39;s <b>Magic</b> operation (with &quot;Intensive mode&quot;) can find most of these on its own.</p>
+<pre><code>import base64, codecs
+s = open(&quot;onion.txt&quot;).read().strip()
+s = base64.b64decode(s).decode()
+s = bytes.fromhex(s).decode()
+s = base64.b32decode(s).decode()
+print(codecs.decode(s, &quot;rot13&quot;))</code></pre>
+          </div>
+        </details>
+        <details class="wu cat-crypto" id="wu-crypto-xor" data-id="crypto-xor">
+          <summary>
+            <span class="name">XOR Marks the Spot</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>0 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{single_byte_xor_is_weak}</code></p>
+<p>XOR facts you need:</p>
+<ul><li><code>a ^ a = 0</code> and <code>a ^ 0 = a</code>, so <code>p ^ k ^ k = p</code>. XOR undoes itself.</li><li>If <code>c = p ^ k</code>, then <code>k = p ^ c</code>. Knowing <b>one plaintext byte reveals the key.</b></li></ul>
+<p>The first ciphertext byte is <code>0x14</code>. The first plaintext byte is <code>N</code> = <code>0x4e</code>. Key = <code>0x14 ^ 0x4e = 0x5a</code>.</p>
+<ul><li><b>CyberChef:</b> <code>From Hex</code> → <code>XOR</code> (key <code>5a</code>, hex), or <code>XOR Brute Force</code> and search for <code>NxT</code></li></ul>
+<pre><code>data = bytes.fromhex(&quot;0e081b131421...&quot;)  # paste the full hex
+key = data[0] ^ ord(&quot;T&quot;)
+print(bytes(b ^ key for b in data).decode())</code></pre>
+<p><b>Takeaway:</b> single-byte XOR has only 256 keys. Repeating a short key is barely better, and known plaintext breaks it the same way.</p>
+          </div>
+        </details>
+        <details class="wu cat-crypto" id="wu-crypto-rsa" data-id="crypto-rsa">
+          <summary>
+            <span class="name">Too Close for Comfort</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff hard">hard</span><span>0 solves</span><span class="pts">300</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{close_primes_are_bad_primes}</code></p>
+<p><b>RSA in 30 seconds:</b></p>
+<ul><li>Pick primes p, q. Public modulus <code>n = p*q</code>. Public exponent <code>e</code> (usually 65537).</li><li><code>φ(n) = (p-1)(q-1)</code>. Private key <code>d = e⁻¹ mod φ(n)</code>.</li><li>Encrypt: <code>c = mᵉ mod n</code>. Decrypt: <code>m = cᵈ mod n</code>.</li><li>Security depends entirely on <b>n being hard to factor.</b></li></ul>
+<p>A 512-bit n would normally take serious compute to factor. But the description says q was found by counting up from p, so <code>p ≈ q ≈ √n</code>. <b>Fermat&#39;s method</b> writes <code>n = a² − b² = (a−b)(a+b)</code> and searches upward from <code>a = ⌈√n⌉</code>. When p and q are close, b is tiny and it finishes in a handful of steps.</p>
+<pre><code>from math import isqrt
+
+n = ...  # from output.txt
+e = 65537
+c = ...
+
+a = isqrt(n) + 1
+while True:
+    b2 = a * a - n
+    b = isqrt(b2)
+    if b * b == b2:
+        break
+    a += 1
+p, q = a - b, a + b
+assert p * q == n
+
+d = pow(e, -1, (p - 1) * (q - 1))
+m = pow(c, d, n)
+print(bytes.fromhex(hex(m)[2:]).decode())</code></pre>
+<p>No-code alternative: paste n into <a href="https://www.alpertron.com.ar/ECM.HTM" target="_blank" rel="noopener">alpertron.com.ar/ECM.HTM</a>. It tries Fermat-style tricks automatically. Then use dcode.fr&#39;s RSA decoder with p, q, e and c.</p>
+<p><b>Takeaway:</b> RSA is only as strong as your primes. Other classic beginner RSA weaknesses to look up: small e with small m, shared primes between keys, and n that&#39;s on <a href="http://factordb.com" target="_blank" rel="noopener">factordb.com</a>.</p>
+          </div>
+        </details>
+      </div>
+      <div class="wu-cat" data-cat="forensics">
+        <div class="category cat-forensics"><span class="prompt">$</span><h2>forensics</h2><span class="count">7 writeups</span></div>
+        <div class="wu-intro"><p>The forensics starter kit: <b><code>file</code></b> (what is this really?), <b><code>strings</code></b> (any readable text?), <b><code>exiftool</code></b> (metadata?), a <b>hex editor</b> (look at the raw bytes), <b>binwalk</b> (anything embedded?), and <b>Wireshark</b> for network captures. Running the first four on every file takes 30 seconds and solves a surprising number of challenges.</p></div>
+        
+        <details class="wu cat-forensics" id="wu-forensics-strings" data-id="forensics-strings">
+          <summary>
+            <span class="name">Cat Picture</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>3 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{strings_finds_everything}</code></p>
+<p>The flag was appended after the end of the JPEG (after the <code>FF D9</code> end-of-image marker). Image viewers stop reading there, so the picture looks normal.</p>
+<pre><code>strings cat.jpg | grep NxT</code></pre>
+<p>On Windows: open in <a href="https://hexed.it" target="_blank" rel="noopener">hexed.it</a> and scroll to the end, or use Sysinternals <code>strings.exe</code>.</p>
+<p><b>Takeaway:</b> <code>strings</code> is always the first thing to try.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-meta" data-id="forensics-meta">
+          <summary>
+            <span class="name">Vacation Photo</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>3 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{always_check_the_metadata}</code></p>
+<pre><code>exiftool vacation.png</code></pre>
+<p>The <code>Comment</code> field holds the flag. It&#39;s stored in a compressed <code>zTXt</code> chunk, which is why <code>strings</code> alone shows nothing useful. Online alternatives: any &quot;EXIF viewer&quot; site, or Aperi&#39;Solve.</p>
+<p><b>Takeaway:</b> real photos leak camera model, timestamps and GPS coordinates. Metadata is a goldmine in both CTFs and real OSINT.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-lebron" data-id="forensics-lebron">
+          <summary>
+            <span class="name">exit lebron enter lebonbon</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>2 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{Y0U_AR3_MY_5UN5H1NE}</code></p>
+<p><code>exiftool lebron.jpg</code> shows a <b>Comment</b> field: <code>heres your flag!: NxT{Y0U_AR3_MY_5UN5H1NE}</code>. It&#39;s stored in the JPEG&#39;s COM segment, uncompressed, so <code>strings lebron.jpg | grep NxT</code> finds it too.</p>
+<p><b>Takeaway:</b> check metadata on every image before you start staring at pixels.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-zip" data-id="forensics-zip">
+          <summary>
+            <span class="name">Homework</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>2 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{file_extensions_lie}</code></p>
+<pre><code>$ file homework.txt
+homework.txt: Zip archive data ...</code></pre>
+<p>The first two bytes are <code>PK</code> (after Phil Katz, inventor of ZIP). Rename to <code>.zip</code> and extract, or run <code>unzip homework.txt</code>. The flag is in <code>notes/flag.txt</code>.</p>
+<p><b>Takeaway:</b> the extension is just part of the name. Magic bytes tell you the real type. Worth memorising: <code>PK</code> = ZIP (also .docx/.jar/.apk), <code>\x89PNG</code> = PNG, <code>\xFF\xD8\xFF</code> = JPEG, <code>%PDF</code> = PDF, <code>\x7FELF</code> = Linux executable, <code>MZ</code> = Windows executable.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-magic" data-id="forensics-magic">
+          <summary>
+            <span class="name">Broken Image</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>1 solve</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{MAGIC_BYTES_MATTER}</code></p>
+<p><code>file broken.png</code> says <code>data</code> because the first 8 bytes were zeroed. In a hex editor you can still see <code>IHDR</code>, <code>IDAT</code> and <code>IEND</code>, which are PNG chunk names, so it&#39;s clearly a PNG.</p>
+<p>Every PNG starts with <code>89 50 4E 47 0D 0A 1A 0A</code>. In hexed.it, select the first 8 bytes, type those values, export, and open the image. The flag is drawn in it.</p>
+<pre><code>data = bytearray(open(&quot;broken.png&quot;, &quot;rb&quot;).read())
+data[:8] = bytes.fromhex(&quot;89504E470D0A1A0A&quot;)
+open(&quot;fixed.png&quot;, &quot;wb&quot;).write(data)</code></pre>
+<p><b>Takeaway:</b> &quot;corrupted file&quot; challenges usually mean a broken header. Compare against a known-good file of the same type.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-pcap" data-id="forensics-pcap">
+          <summary>
+            <span class="name">Sniffed</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>2 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{plaintext_passwords_on_the_wire}</code></p>
+<ol><li>Open <code>capture.pcap</code> in Wireshark.</li><li>Filter: <code>http.request.method == &quot;POST&quot;</code> → one packet, <code>POST /login</code>.</li><li><p>Right-click → <b>Follow → TCP Stream</b>. You&#39;ll see:</p>
+<pre><code>username=jsmith&amp;password=NxT%7Bplaintext_passwords_on_the_wire%7D</code></pre></li><li>URL-decode it (<code>%7B</code> = <code>{</code>, <code>%7D</code> = <code>}</code>). Wireshark&#39;s packet details pane also shows the decoded &quot;HTML Form URL Encoded&quot; fields.</li></ol>
+<p>Also handy: <b>Statistics → Conversations</b> for an overview, and <b>File → Export Objects → HTTP</b> to pull out transferred files.</p>
+<p><b>Takeaway:</b> anything sent over plain HTTP can be read by anyone on the network path. That&#39;s why HTTPS matters.</p>
+          </div>
+        </details>
+        <details class="wu cat-forensics" id="wu-forensics-lsb" data-id="forensics-lsb">
+          <summary>
+            <span class="name">Nothing To See Here</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff hard">hard</span><span>1 solve</span><span class="pts">300</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{least_significant_but_most_important}</code></p>
+<p>A real cat photo, but the first few hundred colour values carry a hidden message. <b>LSB steganography.</b> Each pixel has R, G, B values from 0–255. Changing the lowest bit (e.g. 200 → 201) is invisible to the eye, but each pixel can then carry 3 hidden bits.</p>
+<p>The fastest route: upload to <a href="https://www.aperisolve.com" target="_blank" rel="noopener">aperisolve.com</a> or run <code>zsteg nothing.png</code> and look at the <code>b1,rgb,lsb,xy</code> line.</p>
+<p>By hand with Python + Pillow (<code>pip install pillow</code>):</p>
+<pre><code>from PIL import Image
+
+img = Image.open(&quot;nothing.png&quot;).convert(&quot;RGB&quot;)
+bits = [v &amp; 1 for px in img.getdata() for v in px]   # R,G,B lowest bits, row by row
+out = bytearray()
+for i in range(0, len(bits), 8):
+    byte = int(&quot;&quot;.join(map(str, bits[i:i + 8])), 2)  # most significant bit first
+    if byte == 0:
+        break
+    out.append(byte)
+print(out.decode())</code></pre>
+<p><b>Takeaway:</b> for any image challenge, run the stego checklist: strings → exiftool → binwalk → zsteg/Aperi&#39;Solve → look at individual bit planes (StegSolve or StegOnline).</p>
+          </div>
+        </details>
+      </div>
+      <div class="wu-cat" data-cat="web">
+        <div class="category cat-web"><span class="prompt">$</span><h2>web</h2><span class="count">7 writeups</span></div>
+        <div class="wu-intro"><p>The two most important web tools are already on your computer: your browser&#39;s <b>DevTools</b> (F12) and <b>curl</b>. The golden rule of web security, and the theme of this whole category: <b>everything the client sends can be changed by the user.</b> Cookies, headers, hidden form fields, JavaScript checks, IDs in URLs: all of it.</p></div>
+        
+        <details class="wu cat-web" id="wu-web-inspector" data-id="web-inspector">
+          <summary>
+            <span class="name">Inspector Gadget</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>2 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{v1ew_s0urce_is_a_superpower}</code></p>
+<ul><li><b>View Source</b> (Ctrl+U) → an HTML comment: <code>&lt;!-- Part 1 of 3: NxT{v1ew_s --&gt;</code></li><li>The source links <code>style.css</code> → <code>/* Part 2 of 3: 0urce_is_a_ */</code></li><li>And <code>script.js</code> → <code>// Part 3 of 3: superpower}</code></li></ul>
+<p>DevTools → <b>Sources</b> (Chrome) / <b>Debugger</b> (Firefox) lists every file the page loaded.</p>
+<p><b>Takeaway:</b> developers leave comments, API keys and internal URLs in front-end code all the time.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-robots" data-id="web-robots">
+          <summary>
+            <span class="name">Beep Boop</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>1 solve</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{robots_cant_keep_secrets}</code></p>
+<p><code>robots.txt</code> tells search-engine crawlers what not to index:</p>
+<pre><code>User-agent: *
+Disallow: /chal/web-robots/super-secret-admin-panel/</code></pre>
+<p>Visit that path. (On a real site robots.txt lives at the root, e.g. <code>example.com/robots.txt</code>. Here it&#39;s under the challenge folder.)</p>
+<p><b>Takeaway:</b> <code>robots.txt</code> is a public list of places someone would rather you didn&#39;t look. Check it, along with <code>sitemap.xml</code>, <code>.git/</code> and <code>.env</code>, on every web target.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-cookie" data-id="web-cookie">
+          <summary>
+            <span class="name">Cookie Jar</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>0 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            <p class="banner"><b>Archive version:</b> the DevTools route works the same in the archive. The curl command only worked on the live server, since the archived page checks the cookie in JavaScript.</p>
+            <p><b>Flag:</b> <code>NxT{cookies_are_user_controlled}</code></p>
+<p>The site sets <code>role=guest</code>. DevTools → Application/Storage → Cookies → change the value to <code>admin</code> → refresh.</p>
+<pre><code>curl -H &quot;Cookie: role=admin&quot; http://HOST:8080/chal/web-cookie/</code></pre>
+<p><b>Takeaway:</b> never trust a cookie the server didn&#39;t sign. Real apps use signed or encrypted sessions (e.g. JWTs, Flask&#39;s signed cookies) so users can&#39;t just edit them. Breaking <i>those</i> comes later.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-client" data-id="web-client">
+          <summary>
+            <span class="name">Vault Login</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>1 solve</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{never_trust_the_client}</code></p>
+<p>The password check runs in JavaScript, so the answer has to ship to your browser:</p>
+<pre><code>const secret = [125,116,110,101,...];
+function check(pw) {
+  const mine = pw.split(&#39;&#39;).reverse().map(c =&gt; c.charCodeAt(0));
+  ...
+}</code></pre>
+<p><code>secret</code> holds the character codes of the password, reversed. In the DevTools console:</p>
+<pre><code>String.fromCharCode(...secret.slice().reverse())</code></pre>
+<p><b>Takeaway:</b> client-side validation is for convenience, never for security. Anything checked in the browser can be read or skipped.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-agent" data-id="web-agent">
+          <summary>
+            <span class="name">Members Only</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>0 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            <p class="banner"><b>Archive version:</b> a static site can&#39;t read request headers or send an <code>X-Flag</code> header, so the curl route below only worked on the live server. In the archive, set the DevTools user agent to <code>CTFBrowser/1.0</code> and reload: the flag appears on the page.</p>
+            <p><b>Flag:</b> <code>NxT{headers_tell_stories}</code></p>
+<p>The server checks the <code>User-Agent</code> header for <code>CTFBrowser/1.0</code>, then sends the flag in a custom response header.</p>
+<pre><code>curl -i -A &quot;CTFBrowser/1.0&quot; http://HOST:8080/chal/web-agent/</code></pre>
+<p><code>-A</code> sets the User-Agent and <code>-i</code> shows response headers. You&#39;ll see <code>X-Flag: NxT{...}</code>.</p>
+<p>In Chrome: DevTools → ⋮ → More tools → <b>Network conditions</b> → uncheck &quot;Use browser default&quot; → type <code>CTFBrowser/1.0</code> → reload → Network tab → click the request → Response Headers.</p>
+<p><b>Takeaway:</b> headers are just text the client chooses. Burp Suite (Community edition is free) lets you intercept and edit any request. Learn it next.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-idor" data-id="web-idor">
+          <summary>
+            <span class="name">NoteKeeper</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>1 solve</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            <p class="banner"><b>Archive version:</b> notes live at <code>api/notes/&lt;id&gt;.json</code> instead of <code>api/notes?id=&lt;id&gt;</code>, so ask for <code>api/notes/1.json</code>.</p>
+            <p><b>Flag:</b> <code>NxT{check_your_object_references}</code></p>
+<p>DevTools → Network shows the page fetching <code>api/notes?id=1337</code>. Try other IDs:</p>
+<pre><code>/chal/web-idor/api/notes?id=1    → admin&#39;s note with the flag
+/chal/web-idor/api/notes?id=42   → a joke</code></pre>
+<p><b>Takeaway:</b> this is an <b>IDOR</b> (Insecure Direct Object Reference), one of the most common real-world bugs (part of OWASP&#39;s #1, Broken Access Control). The server must check that the logged-in user actually owns the object. To find these, look for any ID in a URL or request body and try changing it.</p>
+          </div>
+        </details>
+        <details class="wu cat-web" id="wu-web-hire-me" data-id="web-hire-me">
+          <summary>
+            <span class="name">Why should we hire you</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff easy">easy</span><span>2 solves</span><span class="pts">100</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{D0_U_L1K3_MY_P0Rtf0L10?}</code></p>
+<p>The challenge links to an external portfolio site. View the source (Ctrl+U) and you&#39;ll find several HTML comments, most of them decoys (&quot;heres your flag...?&quot;, &quot;lol jokes&quot;). The real one is:</p>
+<pre><code>&lt;!--heres your flag: AkG{Q0_H_Y1X3_ZL_C0Egs0Y10?}(hint. use a website called: cyberchef cooking up ROT13)</code></pre>
+<p><code>AkG</code> is <code>NxT</code> shifted by 13. Run it through CyberChef&#39;s <b>ROT13</b> recipe (digits and symbols don&#39;t change).</p>
+<p><b>Takeaway:</b> comments ship to every visitor. And when a string looks <i>almost</i> like the flag format, try a rotation.</p>
+          </div>
+        </details>
+      </div>
+      <div class="wu-cat" data-cat="rev">
+        <div class="category cat-rev"><span class="prompt">$</span><h2>rev</h2><span class="count">3 writeups</span></div>
+        <div class="wu-intro"><p>Reverse engineering means working out what a program does without (good) source code, then using that knowledge. These three start easy: source you can read, source you can change, and bytecode. Next steps after this comp: compiled C binaries in <b>Ghidra</b> (free, from the NSA).</p></div>
+        
+        <details class="wu cat-rev" id="wu-rev-python" data-id="rev-python">
+          <summary>
+            <span class="name">Flag Checker 3000</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>0 solves</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{xor_and_add_reversed}</code></p>
+<pre><code>for i, ch in enumerate(flag):
+    if ((ord(ch) ^ 0x42) + i) % 256 != enc[i]:
+        return False</code></pre>
+<p>For each character: XOR with <code>0x42</code>, then add the position <code>i</code>. To reverse it, undo the steps <b>in the opposite order</b>: subtract <code>i</code>, then XOR with <code>0x42</code> (XOR undoes itself).</p>
+<pre><code>enc = [...]  # copy from checker.py
+print(&quot;&quot;.join(chr(((e - i) % 256) ^ 0x42) for i, e in enumerate(enc)))</code></pre>
+<p>Run <code>python checker.py</code> and paste the result to confirm.</p>
+<p><b>Takeaway:</b> most &quot;checker&quot; challenges are a chain of reversible steps. Write down each operation, then invert them from last to first.</p>
+          </div>
+        </details>
+        <details class="wu cat-rev" id="wu-rev-license" data-id="rev-license">
+          <summary>
+            <span class="name">License Check</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff medium">medium</span><span>1 solve</span><span class="pts">200</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{you_control_the_code}</code></p>
+<p>The license is checked against a SHA-256 hash, and you can&#39;t reverse a hash. But the reward is computed by <code>unlockReward()</code>, which needs no license at all. The <code>if</code> just guards whether it gets called.</p>
+<p>Change:</p>
+<pre><code>if (hash === VALID_LICENSE_HASH) {</code></pre>
+<p>to</p>
+<pre><code>if (true) {</code></pre>
+<p>and run <code>node license.js</code>. Or add <code>console.log(unlockReward());</code> at the end, or paste the <code>reward</code> array and <code>unlockReward</code> function into your browser console.</p>
+<p><b>Takeaway:</b> if code runs on your machine, you control it. That&#39;s why software license checks get cracked, and why secrets must never live in client-side code. In compiled programs the same trick is called &quot;patching a jump&quot;.</p>
+          </div>
+        </details>
+        <details class="wu cat-rev" id="wu-rev-bytecode" data-id="rev-bytecode">
+          <summary>
+            <span class="name">Lost in Translation</span>
+            <span class="tag">solved</span>
+            <span class="meta"><span class="diff hard">hard</span><span>1 solve</span><span class="pts">300</span></span>
+            <span class="toggle"></span>
+          </summary>
+          <div class="wu-body">
+            
+            <p><b>Flag:</b> <code>NxT{bytecode_is_readable}</code></p>
+<p>Python runs code on a stack machine. Read the disassembly one source line (the numbers on the left) at a time:</p>
+<div class="table-wrap"><table><thead><tr><th>Line</th><th>Bytecode gist</th><th>Python</th></tr></thead><tbody><tr><td>2–3</td><td><code>len(flag)</code>, <code>25</code>, <code>!=</code> → <code>RETURN False</code></td><td><code>if len(flag) != 25: return False</code></td></tr><tr><td>4–5</td><td><code>flag[None:4]</code>, <code>&#39;NxT{&#39;</code>, <code>!=</code></td><td><code>if flag[:4] != &quot;NxT{&quot;: ...</code></td></tr><tr><td>6–7</td><td><code>flag[-1]</code>, <code>&#39;}&#39;</code></td><td><code>if flag[-1] != &quot;}&quot;: ...</code></td></tr><tr><td>8</td><td><code>flag[4:-1].split(&#39;_&#39;)</code> → <code>parts</code></td><td><code>parts = flag[4:-1].split(&quot;_&quot;)</code></td></tr><tr><td>9–10</td><td><code>len(parts) != 3</code></td><td>three words separated by <code>_</code></td></tr><tr><td>11–12</td><td><code>parts[0][None:None:-1]</code>, <code>&#39;edocetyb&#39;</code></td><td><code>parts[0][::-1] == &quot;edocetyb&quot;</code> → <code>parts[0] = &quot;bytecode&quot;</code></td></tr><tr><td>13–14</td><td><code>chr(105) + chr(115)</code></td><td><code>parts[1] == &quot;is&quot;</code> (105 = <code>i</code>, 115 = <code>s</code>)</td></tr><tr><td>15–16</td><td><code>parts[2]</code>, <code>&#39;readable&#39;</code></td><td><code>parts[2] == &quot;readable&quot;</code></td></tr></tbody></table></div>
+<p>Put it together: <code>NxT{</code> + <code>bytecode</code> + <code>_</code> + <code>is</code> + <code>_</code> + <code>readable</code> + <code>}</code> = 25 characters. ✔</p>
+<p><b>Takeaway:</b> bytecode looks scary but it&#39;s very regular. <code>LOAD_*</code> pushes values, operations pop them, and each <code>POP_JUMP_IF_*</code> is an <code>if</code>. The same patient, line-by-line approach works for Java bytecode, .NET IL, and eventually assembly.</p>
+          </div>
+        </details>
       </div>
     </section>
 
